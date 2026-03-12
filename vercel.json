@@ -4,8 +4,8 @@
   "framework": "nextjs",
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "http://151.25.69.162:8000/api/:path*"
+      "source": "/api/v1/:path*",
+      "destination": "http://151.25.69.162:8000/api/v1/:path*"
     }
   ],
   "headers": [
