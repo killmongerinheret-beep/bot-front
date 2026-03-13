@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { api, Agency, MonitorTask } from '@/lib/api';
 import TaskModal from '@/components/TaskModal';
 import TaskCard from '@/components/TaskCard';
@@ -18,11 +19,13 @@ import {
   Zap,
   BarChart3,
   Building2,
-  LogOut
+  LogOut,
+  Shield
 } from 'lucide-react';
 import { ModeToggle } from '@/components/ThemeToggle';
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [tasks, setTasks] = useState<MonitorTask[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -206,6 +209,16 @@ export default function DashboardPage() {
                   {currentAgency.plan}
                 </span>
               </div>
+              
+              {currentUser?.is_super_admin && (
+                <button
+                  onClick={() => router.push('/admin')}
+                  className="h-10 px-4 rounded-lg bg-red-600 border border-red-500 text-white text-sm font-medium hover:bg-red-700 transition-colors flex items-center gap-2"
+                >
+                  <Shield className="w-4 h-4" />
+                  Admin Panel
+                </button>
+              )}
               
               <button
                 onClick={handleLogout}
