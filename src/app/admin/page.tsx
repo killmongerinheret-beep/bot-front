@@ -91,7 +91,13 @@ export default function AdminPanel() {
 
   const checkAuth = async () => {
     try {
-      const response = await api.verifySession();
+      const token = localStorage.getItem('session_token');
+      if (!token) {
+        router.push('/');
+        return;
+      }
+      
+      const response = await api.verifySession(token);
       if (!response.user.is_super_admin) {
         router.push('/');
         return;
