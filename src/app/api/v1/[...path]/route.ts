@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const BACKEND_URL = 'http://151.25.69.162:8000';
+const BACKEND_URL = 'https://southwest-happens-rail-creativity.trycloudflare.com';
 
 export async function GET(
   request: NextRequest,
