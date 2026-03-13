@@ -43,16 +43,20 @@ async function proxyRequest(
   method: string
 ) {
   try {
+    // Join path segments and ensure trailing slash
     const path = pathSegments.join('/');
-    const url = `${BACKEND_URL}/api/v1/${path}`;
+    const url = `${BACKEND_URL}/api/v1/${path}/`;
+    
+    console.log(`[Proxy] ${method} ${url}`);
     
     // Get request body for POST/PUT/PATCH
     let body = undefined;
     if (['POST', 'PUT', 'PATCH'].includes(method)) {
       try {
         body = await request.text();
+        console.log(`[Proxy] Body:`, body);
       } catch (e) {
-        // No body
+        console.log(`[Proxy] No body`);
       }
     }
 
@@ -66,14 +70,18 @@ async function proxyRequest(
     const authHeader = request.headers.get('Authorization');
     if (authHeader) {
       headers['Authorization'] = authHeader;
+      console.log(`[Proxy] Auth header present`);
     }
 
     // Make request to backend
+    console.log(`[Proxy] Fetching backend...`);
     const response = await fetch(url, {
       method,
       headers,
       body,
     });
+
+    console.log(`[Proxy] Backend response: ${response.status}`);
 
     // Get response data
     const data = await response.text();
@@ -94,9 +102,9 @@ async function proxyRequest(
       },
     });
   } catch (error) {
-    console.error('Proxy error:', error);
+    console.error('[Proxy] Error:', error);
     return NextResponse.json(
-      { error: 'Proxy request failed' },
+      { error: 'Proxy request failed', details: String(error) },
       { status: 500 }
     );
   }
