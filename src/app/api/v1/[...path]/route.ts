@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const BACKEND_URL = 'https://southwest-happens-rail-creativity.trycloudflare.com';
+// Backend URL is set via BACKEND_URL env var in Vercel (server-side only, not exposed to browser)
+// Falls back to the direct IP for local dev
+const BACKEND_URL = process.env.BACKEND_URL || 'http://151.25.69.162:8000';
 
 export async function GET(
   request: NextRequest,

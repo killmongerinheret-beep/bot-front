@@ -60,12 +60,17 @@ export interface CheckResult {
 }
 
 const getApiUrl = () => {
-    // Always use environment variable if set
+    // In the browser, always use the relative proxy path so requests go through
+    // the Next.js API route (/api/v1/...) which forwards to the backend server-side.
+    // This avoids CORS issues and keeps the backend URL secret.
+    if (typeof window !== 'undefined') {
+        return '/api/v1';
+    }
+    // Server-side (SSR/build): use env var or direct backend
     const envUrl = process.env.NEXT_PUBLIC_API_URL;
     if (envUrl) {
         return envUrl.endsWith('/') ? envUrl.slice(0, -1) : envUrl;
     }
-    // Local dev fallback only
     return 'http://localhost:8000/api/v1';
 };
 
