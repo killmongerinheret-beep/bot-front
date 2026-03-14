@@ -60,34 +60,13 @@ export interface CheckResult {
 }
 
 const getApiUrl = () => {
-    // 1. Highest priority: Explicit environment variable (Production)
+    // Always use environment variable if set
     const envUrl = process.env.NEXT_PUBLIC_API_URL;
     if (envUrl) {
-        return envUrl.endsWith('/api/v1') ? envUrl : `${envUrl.replace(/\/$/, '')}/api/v1`;
+        return envUrl.endsWith('/') ? envUrl.slice(0, -1) : envUrl;
     }
-
-    // 2. Client-side (Browser) logic
-    if (typeof window !== 'undefined') {
-        const hostname = window.location.hostname;
-        const protocol = window.location.protocol;
-
-        // Production: hydrasnipe.it uses your public IP
-        if (hostname === 'hydrasnipe.it' || hostname === 'www.hydrasnipe.it') {
-            // Try public IP first, fallback to relative path if needed
-            return 'http://151.25.69.162:8000/api/v1';
-        }
-
-        // Dev mode fallback
-        if (hostname === 'localhost' || hostname === '127.0.0.1') {
-            return 'http://localhost:8000/api/v1';
-        }
-
-        // Subdomain/Relative fallback for other hosting scenarios
-        return `${protocol}//${hostname}/api/v1`;
-    }
-
-    // 3. Server-side (SSR) fallback - use public IP for hydrasnipe.it
-    return 'http://151.25.69.162:8000/api/v1';
+    // Local dev fallback only
+    return 'http://localhost:8000/api/v1';
 };
 
 export const api = {
