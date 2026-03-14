@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { Lock, Mail, User, Zap, AlertCircle } from 'lucide-react';
 
 interface LoginPageProps {
-    onLoginSuccess: (sessionToken: string, agency: any) => void;
+    onLoginSuccess: (sessionToken: string, agency: any, user: any) => void;
 }
 
 export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
@@ -37,7 +37,7 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
             localStorage.setItem('user', JSON.stringify(response.user));
             localStorage.setItem('agency', JSON.stringify(response.agency));
             
-            onLoginSuccess(response.session_token, response.agency);
+            onLoginSuccess(response.session_token, response.agency, response.user);
         } catch (err: any) {
             setError(err.message || 'Login failed');
         } finally {
@@ -58,7 +58,7 @@ export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
             localStorage.setItem('user', JSON.stringify(response.user));
             localStorage.setItem('agency', JSON.stringify(response.agency));
             
-            onLoginSuccess(response.session_token, response.agency);
+            onLoginSuccess(response.session_token, response.agency, response.user);
         } catch (err: any) {
             setError(err.message || 'Registration failed');
         } finally {

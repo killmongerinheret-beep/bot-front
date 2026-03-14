@@ -50,23 +50,21 @@ export default function DashboardPage() {
   const checkAuth = async () => {
     try {
       const token = localStorage.getItem('session_token');
-      const storedAgency = localStorage.getItem('agency');
-      const storedUser = localStorage.getItem('user');
+      if (!token) { setIsAuthenticated(false); return; }
+
+      const response = await api.verifySession(token);
       
-      if (token && storedAgency && storedUser) {
-        // Verify session is still valid
-        const response = await api.verifySession(token);
-        
-        setSessionToken(token);
-        setCurrentAgency(response.agency);
-        setCurrentUser(response.user);
-        setIsAuthenticated(true);
-      } else {
-        setIsAuthenticated(false);
+      // Super admin goes straight to /admin
+      if (response.user?.is_super_admin) {
+        router.push('/admin');
+        return;
       }
+
+      setSessionToken(token);
+      setCurrentAgency(response.agency);
+      setCurrentUser(response.user);
+      setIsAuthenticated(true);
     } catch (error) {
-      console.error('Auth check failed:', error);
-      // Clear invalid session
       localStorage.removeItem('session_token');
       localStorage.removeItem('agency');
       localStorage.removeItem('user');
@@ -76,9 +74,15 @@ export default function DashboardPage() {
     }
   };
 
-  const handleLoginSuccess = (token: string, agency: Agency) => {
+  const handleLoginSuccess = (token: string, agency: Agency, user?: any) => {
+    // Super admin goes straight to /admin
+    if (user?.is_super_admin) {
+      router.push('/admin');
+      return;
+    }
     setSessionToken(token);
     setCurrentAgency(agency);
+    setCurrentUser(user || null);
     setIsAuthenticated(true);
   };
 
