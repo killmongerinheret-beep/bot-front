@@ -71,6 +71,8 @@ export default function AdminPanel() {
       if (modal?.type === 'edit-agency') {
         const res = await apiFetch(`agencies/${modal.data.id}/`, { method: 'PATCH', body: JSON.stringify({ name: form.name, plan: form.plan, telegram_chat_id: form.telegram_chat_id }) });
         if (!res.ok) throw new Error((await res.json()).error || 'Failed');
+        // Update local state immediately
+        setAgencies(prev => prev.map(a => a.id === modal.data.id ? { ...a, name: form.name, plan: form.plan, telegram_chat_id: form.telegram_chat_id } : a));
       } else if (modal?.type === 'create-agency') {
         const res = await apiFetch('agencies/', { method: 'POST', body: JSON.stringify({ name: form.name, plan: form.plan || 'free', telegram_chat_id: form.telegram_chat_id }) });
         if (!res.ok) throw new Error((await res.json()).error || 'Failed');
@@ -79,34 +81,42 @@ export default function AdminPanel() {
         if (form.password) body.password = form.password;
         const res = await apiFetch(`users/${modal.data.id}/`, { method: 'PUT', body: JSON.stringify(body) });
         if (!res.ok) throw new Error((await res.json()).error || 'Failed');
+        // Update local state immediately
+        const agencyName = agencies.find(a => a.id === form.agency_id)?.name || '';
+        setUsers(prev => prev.map(u => u.id === modal.data.id ? { ...u, username: form.username, email: form.email, full_name: form.full_name, agency: { ...u.agency, id: form.agency_id, name: agencyName } } : u));
       } else if (modal?.type === 'create-user') {
         const res = await apiFetch('users/', { method: 'POST', body: JSON.stringify({ username: form.username, email: form.email, password: form.password, full_name: form.full_name || '', agency_id: form.agency_id }) });
         if (!res.ok) throw new Error((await res.json()).error || 'Failed');
       } else if (modal?.type === 'edit-task') {
         const res = await apiFetch(`tasks/${modal.data.id}/`, { method: 'PATCH', body: JSON.stringify({ is_active: form.is_active, visitors: form.visitors }) });
         if (!res.ok) throw new Error((await res.json()).error || 'Failed');
+        setTasks(prev => prev.map(t => t.id === modal.data.id ? { ...t, is_active: form.is_active, visitors: form.visitors } : t));
       }
-      closeModal(); loadAll();
+      closeModal();
+      loadAll(); // also refresh in background for full consistency
     } catch (e: any) { setError(e.message); }
     setSaving(false);
   };
 
   const deleteItem = async (type: string, id: number) => {
     if (!confirm('Are you sure?')) return;
+    // Update local state immediately
+    if (type === 'agencies') setAgencies(prev => prev.filter(a => a.id !== id));
+    if (type === 'users') setUsers(prev => prev.filter(u => u.id !== id));
+    if (type === 'tasks') setTasks(prev => prev.filter(t => t.id !== id));
     await apiFetch(`${type}/${id}/`, { method: 'DELETE' });
-    loadAll();
   };
 
   const toggleAgency = async (id: number) => {
+    setAgencies(prev => prev.map(a => a.id === id ? { ...a, is_active: !a.is_active } : a));
     await apiFetch(`agencies/${id}/toggle_active/`, { method: 'POST' });
-    loadAll();
   };
 
   const toggleTask = async (id: number) => {
+    setTasks(prev => prev.map(t => t.id === id ? { ...t, is_active: !t.is_active } : t));
     const task = tasks.find(t => t.id === id);
     if (!task) return;
     await apiFetch(`tasks/${id}/`, { method: 'PATCH', body: JSON.stringify({ is_active: !task.is_active }) });
-    loadAll();
   };
 
   if (loading) return (
