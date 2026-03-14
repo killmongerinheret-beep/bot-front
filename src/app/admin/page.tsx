@@ -11,7 +11,7 @@ const apiFetch = (path: string, opts: RequestInit = {}) =>
     headers: { 'Authorization': `Bearer ${AUTH()}`, 'Content-Type': 'application/json', ...(opts.headers || {}) },
   });
 
-type Agency = { id: number; name: string; plan: string; is_active: boolean; user_count: number; task_count: number; active_task_count: number; created_at: string; telegram_groups: any[] };
+type Agency = { id: number; name: string; plan: string; is_active: boolean; user_count: number; task_count: number; active_task_count: number; created_at: string; telegram_groups: any[]; telegram_chat_id?: string };
 type User = { id: number; username: string; email: string; full_name: string; is_active: boolean; is_admin: boolean; agency: { id: number; name: string; plan: string }; last_login: string | null; task_count: number };
 type Task = { id: number; agency: { id: number; name: string }; ticket_name: string; ticket_type: string; language: string; dates: string[]; visitors: number; is_active: boolean; last_checked: string | null; last_status: string };
 
@@ -69,10 +69,10 @@ export default function AdminPanel() {
     setSaving(true); setError('');
     try {
       if (modal?.type === 'edit-agency') {
-        const res = await apiFetch(`agencies/${modal.data.id}/`, { method: 'PATCH', body: JSON.stringify({ name: form.name, plan: form.plan }) });
+        const res = await apiFetch(`agencies/${modal.data.id}/`, { method: 'PATCH', body: JSON.stringify({ name: form.name, plan: form.plan, telegram_chat_id: form.telegram_chat_id }) });
         if (!res.ok) throw new Error((await res.json()).error || 'Failed');
       } else if (modal?.type === 'create-agency') {
-        const res = await apiFetch('agencies/', { method: 'POST', body: JSON.stringify({ name: form.name, plan: form.plan || 'free' }) });
+        const res = await apiFetch('agencies/', { method: 'POST', body: JSON.stringify({ name: form.name, plan: form.plan || 'free', telegram_chat_id: form.telegram_chat_id }) });
         if (!res.ok) throw new Error((await res.json()).error || 'Failed');
       } else if (modal?.type === 'edit-user') {
         const body: any = { username: form.username, email: form.email, full_name: form.full_name, agency_id: form.agency_id };
@@ -180,7 +180,7 @@ export default function AdminPanel() {
                       {a.is_active ? 'Active' : 'Inactive'}
                     </span>
                   </div>
-                  <p className="text-gray-400 text-xs">{a.user_count} users · {a.task_count} tasks ({a.active_task_count} active)</p>
+                  <p className="text-gray-400 text-xs">{a.user_count} users · {a.task_count} tasks ({a.active_task_count} active) · Chat ID: {a.telegram_chat_id || 'not set'}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <button onClick={() => toggleAgency(a.id)} title="Toggle active" className="p-2 hover:bg-gray-700 rounded-lg">
@@ -278,6 +278,9 @@ export default function AdminPanel() {
                   <option value="premium">Premium</option>
                   <option value="system">System</option>
                 </select>
+                <input className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm" placeholder="Telegram Chat ID (e.g. -1001234567890)"
+                  value={form.telegram_chat_id || ''} onChange={e => setForm({ ...form, telegram_chat_id: e.target.value })} />
+                <p className="text-gray-500 text-xs">To get the chat ID: add the bot to the group, then check bot logs or use @userinfobot</p>
               </div>
             )}
 
