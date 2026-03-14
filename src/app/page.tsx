@@ -50,34 +50,33 @@ export default function DashboardPage() {
   const checkAuth = async () => {
     try {
       const token = localStorage.getItem('session_token');
-      if (!token) { setIsAuthenticated(false); return; }
+      if (!token) { setIsAuthenticated(false); setLoading(false); return; }
 
       const response = await api.verifySession(token);
       
-      // Super admin goes straight to /admin
+      // Super admin goes straight to /admin - don't render dashboard at all
       if (response.user?.is_super_admin) {
-        router.push('/admin');
-        return;
+        router.replace('/admin');
+        return; // Don't setLoading(false) - keep spinner until redirect completes
       }
 
       setSessionToken(token);
       setCurrentAgency(response.agency);
       setCurrentUser(response.user);
       setIsAuthenticated(true);
+      setLoading(false);
     } catch (error) {
       localStorage.removeItem('session_token');
       localStorage.removeItem('agency');
       localStorage.removeItem('user');
       setIsAuthenticated(false);
-    } finally {
       setLoading(false);
     }
   };
 
   const handleLoginSuccess = (token: string, agency: Agency, user?: any) => {
-    // Super admin goes straight to /admin
     if (user?.is_super_admin) {
-      router.push('/admin');
+      router.replace('/admin');
       return;
     }
     setSessionToken(token);
@@ -142,6 +141,7 @@ export default function DashboardPage() {
     return <LoginPage onLoginSuccess={handleLoginSuccess} />;
   }
 
+  // Still loading or redirecting (e.g. super admin redirect in progress)
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#050505]">
