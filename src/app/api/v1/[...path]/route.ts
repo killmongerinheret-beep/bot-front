@@ -50,8 +50,8 @@ async function proxyRequest(
   method: string
 ) {
   try {
-    // Join path segments and ensure trailing slash
-    const path = pathSegments.join('/');
+    // Join path segments and ensure trailing slash (deduplicate)
+    const path = pathSegments.join('/').replace(/\/+$/, '');
     const url = `${BACKEND_URL}/api/v1/${path}/`;
     
     console.log(`[Proxy] ${method} ${url}`);
@@ -90,15 +90,20 @@ async function proxyRequest(
 
     console.log(`[Proxy] Backend response: ${response.status}`);
 
+    // Handle empty responses (204 No Content)
+    if (response.status === 204) {
+      return new NextResponse(null, { status: 204 });
+    }
+
     // Get response data
     const data = await response.text();
     
     // Parse JSON if possible
     let jsonData;
     try {
-      jsonData = JSON.parse(data);
+      jsonData = data ? JSON.parse(data) : {};
     } catch {
-      jsonData = data;
+      jsonData = { message: data };
     }
 
     // Return response with same status
