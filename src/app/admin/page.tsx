@@ -100,11 +100,19 @@ export default function AdminPanel() {
 
   const deleteItem = async (type: string, id: number) => {
     if (!confirm('Are you sure?')) return;
-    // Update local state immediately
-    if (type === 'agencies') setAgencies(prev => prev.filter(a => a.id !== id));
-    if (type === 'users') setUsers(prev => prev.filter(u => u.id !== id));
-    if (type === 'tasks') setTasks(prev => prev.filter(t => t.id !== id));
-    await apiFetch(`${type}/${id}/`, { method: 'DELETE' });
+    try {
+      const res = await apiFetch(`${type}/${id}/`, { method: 'DELETE' });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        alert(data.error || `Delete failed (${res.status})`);
+        return;
+      }
+      if (type === 'agencies') setAgencies(prev => prev.filter(a => a.id !== id));
+      if (type === 'users') setUsers(prev => prev.filter(u => u.id !== id));
+      if (type === 'tasks') setTasks(prev => prev.filter(t => t.id !== id));
+    } catch (e: any) {
+      alert(e.message || 'Delete failed');
+    }
   };
 
   const toggleAgency = async (id: number) => {
