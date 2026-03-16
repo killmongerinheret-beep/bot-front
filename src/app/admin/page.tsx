@@ -136,7 +136,15 @@ export default function AdminPanel() {
           <Shield className="text-red-500 w-6 h-6" />
           <span className="font-bold text-lg">Super Admin</span>
         </div>
-        <button onClick={() => router.push('/')} className="text-sm text-gray-400 hover:text-white">← Dashboard</button>
+        <button onClick={async () => {
+          const token = localStorage.getItem('session_token');
+          if (token) await fetch('/api/v1/auth/logout/', { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } }).catch(() => {});
+          localStorage.clear();
+          window.location.href = '/';
+        }} className="flex items-center gap-2 text-sm text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 px-3 py-2 rounded-lg transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Logout
+        </button>
       </div>
 
       {/* Nav */}
