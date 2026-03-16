@@ -96,8 +96,8 @@ export default function TaskModal({ isOpen, onClose, onSuccess, agencyId }: Task
     };
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-[#050505]/80 backdrop-blur-xl">
-            <div className="bento-card w-full max-w-xl relative overflow-hidden max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center sm:p-6 bg-[#050505]/80 backdrop-blur-xl">
+            <div className="bento-card w-full sm:max-w-xl relative overflow-hidden max-h-[92vh] overflow-y-auto rounded-b-none sm:rounded-2xl">
                 {/* Green accent bar */}
                 <div className="absolute top-0 left-0 w-full h-1 bg-[#00E37C]" style={{ marginTop: '-32px', marginLeft: '-32px', width: 'calc(100% + 64px)' }}></div>
 

@@ -13,7 +13,6 @@ import LoginPage from '@/components/LoginPage';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plus,
-  ChevronRight,
   Globe,
   Activity,
   Zap,
@@ -22,7 +21,6 @@ import {
   LogOut,
   Shield
 } from 'lucide-react';
-import { ModeToggle } from '@/components/ThemeToggle';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -174,184 +172,126 @@ export default function DashboardPage() {
 
   return (
     <div className="relative flex h-screen overflow-hidden bg-[#050505]">
-      <Sidebar
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        className="flex-shrink-0 z-20"
-      />
+      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} className="flex-shrink-0 z-20" />
 
       <main className="flex-1 overflow-y-auto relative">
-        <div className="p-8 lg:p-12 max-w-[1600px] mx-auto min-h-full">
-          {/* Header */}
+        <div className="p-4 md:p-8 lg:p-12 max-w-[1600px] mx-auto min-h-full pb-24 md:pb-12">
+
+          {/* Mobile header */}
+          <div className="md:hidden flex items-center justify-between mb-5">
+            <div>
+              <div className="flex items-center gap-2 mb-0.5">
+                <div className="w-6 h-6 rounded-lg bg-[#00E37C] flex items-center justify-center">
+                  <Zap size={13} className="text-[#050505]" />
+                </div>
+                <span className="text-xs font-semibold text-[#888] uppercase tracking-widest">HYDRA</span>
+              </div>
+              <h1 className="text-lg font-semibold text-white truncate max-w-[180px]">{currentAgency.name}</h1>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className="text-xs text-[#888]">{tasks.length}/{taskLimit}</span>
+                <span className="text-[10px] px-1.5 py-0.5 bg-[#00E37C]/10 text-[#00E37C] rounded-full uppercase font-semibold">{currentAgency.plan}</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {currentUser?.is_super_admin && (
+                <button onClick={() => router.push('/admin')} className="p-2 rounded-xl bg-red-600/20 border border-red-500/30 text-red-400">
+                  <Shield className="w-4 h-4" />
+                </button>
+              )}
+              <button onClick={handleLogout} className="p-2 rounded-xl bg-[#1a1a1a] border border-[#262626] text-[#888]">
+                <LogOut className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setIsModalOpen(true)}
+                disabled={tasks.length >= taskLimit}
+                className="flex items-center gap-1.5 px-3 py-2 bg-[#00E37C] text-[#050505] text-sm font-semibold rounded-xl disabled:opacity-40"
+              >
+                <Plus className="w-4 h-4" />
+                New
+              </button>
+            </div>
+          </div>
+
+          {/* Desktop header */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="flex justify-between items-start mb-10"
+            className="hidden md:flex justify-between items-start mb-8"
           >
             <div>
-              <div className="flex items-center gap-2 text-sm font-medium text-[#888888] mb-3">
-                <span>Dashboard</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-                <span className="text-white">{currentAgency.name}</span>
-              </div>
-              <h1 className="text-3xl font-semibold text-white tracking-tight mb-2">
-                {currentAgency.name}
-              </h1>
-              <p className="text-[#888888] max-w-xl">
-                Live status of all automated ticket checking tasks for this agency.
-              </p>
+              <h1 className="text-2xl font-semibold text-white tracking-tight mb-1">{currentAgency.name}</h1>
+              <p className="text-[#888888] text-sm">Live ticket monitoring dashboard</p>
             </div>
-
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <div className="px-3 py-1.5 bg-[#0F0F0F] border border-[#262626] rounded-full flex items-center gap-2">
-                <div className={`w-2 h-2 rounded-full ${tasks.length >= taskLimit ? 'bg-red-500' : 'bg-[#00E37C]'}`}></div>
-                <span className="text-sm font-medium text-[#888888]">
-                  {tasks.length}/{taskLimit} Monitors
-                </span>
-                <span className="text-xs px-1.5 py-0.5 bg-[#00E37C]/10 text-[#00E37C] rounded-full uppercase font-semibold">
-                  {currentAgency.plan}
-                </span>
+                <div className={`w-2 h-2 rounded-full ${tasks.length >= taskLimit ? 'bg-red-500' : 'bg-[#00E37C]'}`} />
+                <span className="text-sm font-medium text-[#888888]">{tasks.length}/{taskLimit} Monitors</span>
+                <span className="text-xs px-1.5 py-0.5 bg-[#00E37C]/10 text-[#00E37C] rounded-full uppercase font-semibold">{currentAgency.plan}</span>
               </div>
-              
               {currentUser?.is_super_admin && (
-                <button
-                  onClick={() => router.push('/admin')}
-                  className="h-10 px-4 rounded-lg bg-red-600 border border-red-500 text-white text-sm font-medium hover:bg-red-700 transition-colors flex items-center gap-2"
-                >
-                  <Shield className="w-4 h-4" />
-                  Admin Panel
+                <button onClick={() => router.push('/admin')} className="h-9 px-4 rounded-lg bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition-colors flex items-center gap-2">
+                  <Shield className="w-4 h-4" /> Admin
                 </button>
               )}
-              
-              <button
-                onClick={handleLogout}
-                className="h-10 px-4 rounded-lg bg-[#1a1a1a] border border-[#262626] text-[#888888] text-sm font-medium hover:text-white hover:border-[#404040] transition-colors flex items-center gap-2"
-              >
-                <LogOut className="w-4 h-4" />
-                Logout
+              <button onClick={handleLogout} className="h-9 px-4 rounded-lg bg-[#1a1a1a] border border-[#262626] text-[#888888] text-sm font-medium hover:text-white transition-colors flex items-center gap-2">
+                <LogOut className="w-4 h-4" /> Logout
               </button>
-              
-              <ModeToggle />
-              
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setIsModalOpen(true)}
-                disabled={tasks.length >= taskLimit}
-                className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Plus className="w-4 h-4" />
-                <span>New Monitor</span>
+              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                onClick={() => setIsModalOpen(true)} disabled={tasks.length >= taskLimit}
+                className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed">
+                <Plus className="w-4 h-4" /><span>New Monitor</span>
               </motion.button>
             </div>
           </motion.div>
 
-          {/* Stats Bar */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10"
-          >
-            <div className="bento-card !p-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-[#00E37C]/10 rounded-xl flex items-center justify-center">
-                  <Activity className="w-5 h-5 text-[#00E37C]" />
-                </div>
-                <div>
-                  <div className="text-2xl font-semibold text-white">{activeTasks}</div>
-                  <div className="text-sm text-[#888888]">Active</div>
-                </div>
-              </div>
-            </div>
-            <div className="bento-card !p-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center">
-                  <BarChart3 className="w-5 h-5 text-blue-400" />
-                </div>
-                <div>
-                  <div className="text-2xl font-semibold text-white">{totalTasks}</div>
-                  <div className="text-sm text-[#888888]">Total Tasks</div>
-                </div>
-              </div>
-            </div>
-            <div className="bento-card !p-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-purple-500/10 rounded-xl flex items-center justify-center">
-                  <Building2 className="w-5 h-5 text-purple-400" />
-                </div>
-                <div>
-                  <div className="text-lg font-semibold text-white capitalize">{currentAgency.plan}</div>
-                  <div className="text-sm text-[#888888]">Plan</div>
-                </div>
-              </div>
-            </div>
-            <div className="bento-card !p-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center">
-                  <Zap className="w-5 h-5 text-emerald-400" />
-                </div>
-                <div>
-                  <div className="text-lg font-semibold text-white">
-                    {tasks.filter(t => t.last_status === 'available').length > 0 ? 
-                      `${Math.round((tasks.filter(t => t.last_status === 'available').length / Math.max(tasks.length, 1)) * 100)}%` : 
-                      '0%'}
+          {/* Stats */}
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+            className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+            {[
+              { icon: <Activity className="w-4 h-4 text-[#00E37C]" />, bg: 'bg-[#00E37C]/10', val: activeTasks, label: 'Active' },
+              { icon: <BarChart3 className="w-4 h-4 text-blue-400" />, bg: 'bg-blue-500/10', val: totalTasks, label: 'Total' },
+              { icon: <Building2 className="w-4 h-4 text-purple-400" />, bg: 'bg-purple-500/10', val: currentAgency.plan, label: 'Plan', capitalize: true },
+              { icon: <Zap className="w-4 h-4 text-emerald-400" />, bg: 'bg-emerald-500/10', val: tasks.filter(t => t.last_status === 'available').length > 0 ? `${Math.round((tasks.filter(t => t.last_status === 'available').length / Math.max(tasks.length, 1)) * 100)}%` : '0%', label: 'Available' },
+            ].map(({ icon, bg, val, label, capitalize }) => (
+              <div key={label} className="bento-card !p-4">
+                <div className="flex items-center gap-2.5">
+                  <div className={`w-8 h-8 ${bg} rounded-lg flex items-center justify-center shrink-0`}>{icon}</div>
+                  <div className="min-w-0">
+                    <div className={`text-xl font-semibold text-white truncate ${capitalize ? 'capitalize' : ''}`}>{val}</div>
+                    <div className="text-xs text-[#888888]">{label}</div>
                   </div>
-                  <div className="text-sm text-[#888888]">Available</div>
                 </div>
               </div>
-            </div>
+            ))}
           </motion.div>
 
-          {/* Content Area */}
+          {/* Content */}
           <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, x: 10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -10 }}
-              transition={{ duration: 0.3 }}
-            >
+            <motion.div key={activeTab} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} transition={{ duration: 0.3 }}>
               {activeTab === 'matrix' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pb-12">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                   {Array.isArray(tasks) && tasks.map((task, i) => (
-                    <motion.div
-                      key={`task-${task.id}-${i}`}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.05 }}
-                    >
+                    <motion.div key={`task-${task.id}-${i}`} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
                       <TaskCard task={task} onDelete={handleDeleteTask} />
                     </motion.div>
                   ))}
                   {(!Array.isArray(tasks) || tasks.length === 0) && (
-                    <div className="col-span-full bento-card flex flex-col items-center justify-center text-center py-20">
-                      <div className="w-16 h-16 bg-[#262626] rounded-full flex items-center justify-center mb-6">
-                        <Globe className="w-7 h-7 text-[#888888]" />
+                    <div className="col-span-full bento-card flex flex-col items-center justify-center text-center py-16">
+                      <div className="w-14 h-14 bg-[#262626] rounded-full flex items-center justify-center mb-4">
+                        <Globe className="w-6 h-6 text-[#888888]" />
                       </div>
-                      <h3 className="text-xl font-semibold text-white mb-2">No Active Monitors</h3>
-                      <p className="text-[#888888] max-w-md mb-6">
-                        Initialize a new monitoring task for {currentAgency.name} to begin tracking ticket availability.
-                      </p>
-                      <button
-                        onClick={() => setIsModalOpen(true)}
-                        disabled={tasks.length >= taskLimit}
-                        className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        <Plus className="w-4 h-4" />
-                        Create First Monitor
+                      <h3 className="text-lg font-semibold text-white mb-2">No Active Monitors</h3>
+                      <p className="text-[#888888] text-sm max-w-xs mb-5">Create a monitor to start tracking Vatican ticket availability.</p>
+                      <button onClick={() => setIsModalOpen(true)} disabled={tasks.length >= taskLimit} className="btn-primary disabled:opacity-50">
+                        <Plus className="w-4 h-4" /> Create Monitor
                       </button>
                     </div>
                   )}
                 </div>
               )}
-
               {activeTab === 'logs' && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                >
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
                   <LogsView agencyId={currentAgency.id} />
                 </motion.div>
               )}
@@ -360,12 +300,7 @@ export default function DashboardPage() {
         </div>
       </main>
 
-      <TaskModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSuccess={refreshTasks}
-        agencyId={currentAgency.id}
-      />
+      <TaskModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSuccess={refreshTasks} agencyId={currentAgency.id} />
     </div>
   );
 }

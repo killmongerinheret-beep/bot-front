@@ -148,16 +148,16 @@ export default function AdminPanel() {
       </div>
 
       {/* Nav */}
-      <div className="flex gap-1 px-6 pt-4">
+      <div className="flex gap-1 px-4 pt-3 overflow-x-auto scrollbar-hide">
         {([['dashboard', BarChart3], ['agencies', Building2], ['users', Users], ['tasks', Activity]] as any[]).map(([key, Icon]) => (
           <button key={key} onClick={() => setView(key)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium capitalize transition-colors ${view === key ? 'bg-red-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}>
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium capitalize transition-colors whitespace-nowrap ${view === key ? 'bg-red-600 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'}`}>
             <Icon className="w-4 h-4" />{key}
           </button>
         ))}
       </div>
 
-      <div className="p-6 space-y-4">
+      <div className="p-4 space-y-4">
 
         {/* Dashboard */}
         {view === 'dashboard' && stats && (
@@ -189,23 +189,25 @@ export default function AdminPanel() {
               </button>
             </div>
             {agencies.map(a => (
-              <div key={a.id} className="bg-gray-900 border border-gray-800 rounded-xl p-4 flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-medium">{a.name}</span>
-                    <span className="text-xs bg-gray-700 px-2 py-0.5 rounded">{a.plan}</span>
-                    <span className={`text-xs px-2 py-0.5 rounded ${a.is_active ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'}`}>
-                      {a.is_active ? 'Active' : 'Inactive'}
-                    </span>
+              <div key={a.id} className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <span className="font-medium">{a.name}</span>
+                      <span className="text-xs bg-gray-700 px-2 py-0.5 rounded">{a.plan}</span>
+                      <span className={`text-xs px-2 py-0.5 rounded ${a.is_active ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'}`}>
+                        {a.is_active ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
+                    <p className="text-gray-400 text-xs">{a.user_count} users · {a.task_count} tasks · Chat: {a.telegram_chat_id || 'not set'}</p>
                   </div>
-                  <p className="text-gray-400 text-xs">{a.user_count} users · {a.task_count} tasks ({a.active_task_count} active) · Chat ID: {a.telegram_chat_id || 'not set'}</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button onClick={() => toggleAgency(a.id)} title="Toggle active" className="p-2 hover:bg-gray-700 rounded-lg">
-                    {a.is_active ? <ToggleRight className="w-5 h-5 text-green-400" /> : <ToggleLeft className="w-5 h-5 text-gray-500" />}
-                  </button>
-                  <button onClick={() => openModal('edit-agency', a)} className="p-2 hover:bg-gray-700 rounded-lg"><Edit className="w-4 h-4 text-blue-400" /></button>
-                  <button onClick={() => deleteItem('agencies', a.id)} className="p-2 hover:bg-gray-700 rounded-lg"><Trash2 className="w-4 h-4 text-red-400" /></button>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button onClick={() => toggleAgency(a.id)} className="p-2 hover:bg-gray-700 rounded-lg">
+                      {a.is_active ? <ToggleRight className="w-5 h-5 text-green-400" /> : <ToggleLeft className="w-5 h-5 text-gray-500" />}
+                    </button>
+                    <button onClick={() => openModal('edit-agency', a)} className="p-2 hover:bg-gray-700 rounded-lg"><Edit className="w-4 h-4 text-blue-400" /></button>
+                    <button onClick={() => deleteItem('agencies', a.id)} className="p-2 hover:bg-gray-700 rounded-lg"><Trash2 className="w-4 h-4 text-red-400" /></button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -222,21 +224,23 @@ export default function AdminPanel() {
               </button>
             </div>
             {users.map(u => (
-              <div key={u.id} className="bg-gray-900 border border-gray-800 rounded-xl p-4 flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-medium">{u.username}</span>
-                    <span className="text-xs text-gray-400">{u.email}</span>
-                    {u.is_admin && <span className="text-xs bg-yellow-900 text-yellow-300 px-2 py-0.5 rounded">Admin</span>}
-                    <span className={`text-xs px-2 py-0.5 rounded ${u.is_active ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'}`}>
-                      {u.is_active ? 'Active' : 'Inactive'}
-                    </span>
+              <div key={u.id} className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <span className="font-medium">{u.username}</span>
+                      <span className="text-xs text-gray-400 truncate max-w-[120px]">{u.email}</span>
+                      {u.is_admin && <span className="text-xs bg-yellow-900 text-yellow-300 px-2 py-0.5 rounded">Admin</span>}
+                      <span className={`text-xs px-2 py-0.5 rounded ${u.is_active ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'}`}>
+                        {u.is_active ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
+                    <p className="text-gray-400 text-xs">Agency: {u.agency.name} · {u.agency.plan}</p>
                   </div>
-                  <p className="text-gray-400 text-xs">Agency: {u.agency.name} · {u.agency.plan} · Last login: {u.last_login ? new Date(u.last_login).toLocaleDateString() : 'Never'}</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button onClick={() => openModal('edit-user', { ...u, agency_id: u.agency.id })} className="p-2 hover:bg-gray-700 rounded-lg"><Edit className="w-4 h-4 text-blue-400" /></button>
-                  <button onClick={() => deleteItem('users', u.id)} className="p-2 hover:bg-gray-700 rounded-lg"><Trash2 className="w-4 h-4 text-red-400" /></button>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button onClick={() => openModal('edit-user', { ...u, agency_id: u.agency.id })} className="p-2 hover:bg-gray-700 rounded-lg"><Edit className="w-4 h-4 text-blue-400" /></button>
+                    <button onClick={() => deleteItem('users', u.id)} className="p-2 hover:bg-gray-700 rounded-lg"><Trash2 className="w-4 h-4 text-red-400" /></button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -248,24 +252,26 @@ export default function AdminPanel() {
           <div className="space-y-3">
             <h2 className="font-semibold text-gray-200">All Tasks ({tasks.length})</h2>
             {tasks.map(t => (
-              <div key={t.id} className="bg-gray-900 border border-gray-800 rounded-xl p-4 flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-medium text-sm">{t.ticket_name || 'Unnamed'}</span>
-                    <span className="text-xs bg-gray-700 px-2 py-0.5 rounded">{t.agency.name}</span>
-                    <span className={`text-xs px-2 py-0.5 rounded ${t.is_active ? 'bg-green-900 text-green-300' : 'bg-gray-700 text-gray-400'}`}>
-                      {t.is_active ? 'Active' : 'Paused'}
-                    </span>
+              <div key={t.id} className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <span className="font-medium text-sm">{t.ticket_name || 'Unnamed'}</span>
+                      <span className="text-xs bg-gray-700 px-2 py-0.5 rounded">{t.agency.name}</span>
+                      <span className={`text-xs px-2 py-0.5 rounded ${t.is_active ? 'bg-green-900 text-green-300' : 'bg-gray-700 text-gray-400'}`}>
+                        {t.is_active ? 'Active' : 'Paused'}
+                      </span>
+                    </div>
+                    <p className="text-gray-400 text-xs">{t.language || 'Standard'} · {t.visitors} visitors</p>
+                    <p className="text-gray-500 text-xs truncate">{t.dates?.join(', ')}</p>
                   </div>
-                  <p className="text-gray-400 text-xs">{t.ticket_type} · {t.language || 'Standard'} · {t.visitors} visitors · Dates: {t.dates?.join(', ')}</p>
-                  <p className="text-gray-500 text-xs">Last checked: {t.last_checked ? new Date(t.last_checked).toLocaleString() : 'Never'} · Status: {t.last_status || '—'}</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button onClick={() => toggleTask(t.id)} title="Toggle active" className="p-2 hover:bg-gray-700 rounded-lg">
-                    {t.is_active ? <ToggleRight className="w-5 h-5 text-green-400" /> : <ToggleLeft className="w-5 h-5 text-gray-500" />}
-                  </button>
-                  <button onClick={() => openModal('edit-task', t)} className="p-2 hover:bg-gray-700 rounded-lg"><Edit className="w-4 h-4 text-blue-400" /></button>
-                  <button onClick={() => deleteItem('tasks', t.id)} className="p-2 hover:bg-gray-700 rounded-lg"><Trash2 className="w-4 h-4 text-red-400" /></button>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button onClick={() => toggleTask(t.id)} className="p-2 hover:bg-gray-700 rounded-lg">
+                      {t.is_active ? <ToggleRight className="w-5 h-5 text-green-400" /> : <ToggleLeft className="w-5 h-5 text-gray-500" />}
+                    </button>
+                    <button onClick={() => openModal('edit-task', t)} className="p-2 hover:bg-gray-700 rounded-lg"><Edit className="w-4 h-4 text-blue-400" /></button>
+                    <button onClick={() => deleteItem('tasks', t.id)} className="p-2 hover:bg-gray-700 rounded-lg"><Trash2 className="w-4 h-4 text-red-400" /></button>
+                  </div>
                 </div>
               </div>
             ))}
