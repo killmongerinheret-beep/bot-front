@@ -168,7 +168,7 @@ export default function DashboardPage() {
 
   const activeTasks = tasks.filter(t => t.is_active).length;
   const totalTasks = tasks.length;
-  const taskLimit = currentAgency.plan === 'free' ? 2 : currentAgency.plan === 'pro' ? 10 : 50;
+  // No monitor count limits — plan gates tier features (hold/snipe), not quantity
 
   return (
     <div className="relative flex h-screen overflow-hidden bg-[#050505]">
@@ -188,7 +188,7 @@ export default function DashboardPage() {
               </div>
               <h1 className="text-lg font-semibold text-white truncate max-w-[180px]">{currentAgency.name}</h1>
               <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="text-xs text-[#888]">{tasks.length}/{taskLimit}</span>
+                <span className="text-xs text-[#888]">{tasks.length} monitors</span>
                 <span className="text-[10px] px-1.5 py-0.5 bg-[#00E37C]/10 text-[#00E37C] rounded-full uppercase font-semibold">{currentAgency.plan}</span>
               </div>
             </div>
@@ -203,8 +203,7 @@ export default function DashboardPage() {
               </button>
               <button
                 onClick={() => setIsModalOpen(true)}
-                disabled={tasks.length >= taskLimit}
-                className="flex items-center gap-1.5 px-3 py-2 bg-[#00E37C] text-[#050505] text-sm font-semibold rounded-xl disabled:opacity-40"
+                className="flex items-center gap-1.5 px-3 py-2 bg-[#00E37C] text-[#050505] text-sm font-semibold rounded-xl"
               >
                 <Plus className="w-4 h-4" />
                 New
@@ -225,8 +224,8 @@ export default function DashboardPage() {
             </div>
             <div className="flex items-center gap-3">
               <div className="px-3 py-1.5 bg-[#0F0F0F] border border-[#262626] rounded-full flex items-center gap-2">
-                <div className={`w-2 h-2 rounded-full ${tasks.length >= taskLimit ? 'bg-red-500' : 'bg-[#00E37C]'}`} />
-                <span className="text-sm font-medium text-[#888888]">{tasks.length}/{taskLimit} Monitors</span>
+                <div className="w-2 h-2 rounded-full bg-[#00E37C]" />
+                <span className="text-sm font-medium text-[#888888]">{tasks.length} Monitors</span>
                 <span className="text-xs px-1.5 py-0.5 bg-[#00E37C]/10 text-[#00E37C] rounded-full uppercase font-semibold">{currentAgency.plan}</span>
               </div>
               {currentUser?.is_super_admin && (
@@ -238,8 +237,8 @@ export default function DashboardPage() {
                 <LogOut className="w-4 h-4" /> Logout
               </button>
               <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-                onClick={() => setIsModalOpen(true)} disabled={tasks.length >= taskLimit}
-                className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed">
+                onClick={() => setIsModalOpen(true)}
+                className="btn-primary">
                 <Plus className="w-4 h-4" /><span>New Monitor</span>
               </motion.button>
             </div>
@@ -283,7 +282,7 @@ export default function DashboardPage() {
                       </div>
                       <h3 className="text-lg font-semibold text-white mb-2">No Active Monitors</h3>
                       <p className="text-[#888888] text-sm max-w-xs mb-5">Create a monitor to start tracking Vatican ticket availability.</p>
-                      <button onClick={() => setIsModalOpen(true)} disabled={tasks.length >= taskLimit} className="btn-primary disabled:opacity-50">
+                      <button onClick={() => setIsModalOpen(true)} className="btn-primary">
                         <Plus className="w-4 h-4" /> Create Monitor
                       </button>
                     </div>
@@ -300,7 +299,7 @@ export default function DashboardPage() {
         </div>
       </main>
 
-      <TaskModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSuccess={refreshTasks} agencyId={currentAgency.id} />
+      <TaskModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSuccess={refreshTasks} agencyId={currentAgency.id} agencyPlan={currentAgency.plan} />
     </div>
   );
 }
