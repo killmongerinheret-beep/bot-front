@@ -18,6 +18,7 @@ import {
   Zap,
   BarChart3,
   Building2,
+  Lock,
   LogOut,
   Shield
 } from 'lucide-react';
@@ -27,7 +28,8 @@ export default function DashboardPage() {
   const [tasks, setTasks] = useState<MonitorTask[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'matrix' | 'logs' | 'settings'>('matrix');
+  const [activeTab, setActiveTab] = useState<'matrix' | 'logs' | 'holds' | 'settings'>('matrix');
+  const [heldSlots, setHeldSlots] = useState<any[]>([]);
   
   // Authentication state
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -42,6 +44,7 @@ export default function DashboardPage() {
   useEffect(() => {
     if (isAuthenticated && currentAgency) {
       loadTasks();
+      loadHeldSlots();
     }
   }, [isAuthenticated, currentAgency]);
 
@@ -103,13 +106,26 @@ export default function DashboardPage() {
 
   const loadTasks = async () => {
     if (!currentAgency) return;
-    
     try {
       const tasksData = await api.getTasks(currentAgency.id);
-      console.log('✅ Tasks loaded for agency:', currentAgency.name, tasksData.length, 'tasks');
       setTasks(tasksData);
     } catch (error) {
       console.error('❌ Failed to load tasks:', error);
+    }
+  };
+
+  const loadHeldSlots = async () => {
+    try {
+      const token = localStorage.getItem('session_token');
+      const res = await fetch('/api/v1/holds/', {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setHeldSlots(Array.isArray(data) ? data : data.results || []);
+      }
+    } catch (err) {
+      console.error('Failed to load held slots:', err);
     }
   };
 
@@ -265,6 +281,27 @@ export default function DashboardPage() {
             ))}
           </motion.div>
 
+          {/* Tab switcher */}
+          <div className="flex gap-2 mb-6">
+            {[
+              { id: 'matrix', label: '📋 Monitors' },
+              { id: 'holds', label: `🔒 Held Slots (${heldSlots.length})` },
+              { id: 'logs', label: '📊 Logs' },
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => { setActiveTab(tab.id as any); if (tab.id === 'holds') loadHeldSlots(); }}
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                  activeTab === tab.id
+                    ? 'bg-[#00E37C] text-[#050505]'
+                    : 'bg-[#1a1a1a] border border-[#262626] text-[#888] hover:text-white'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
           {/* Content */}
           <AnimatePresence mode="wait">
             <motion.div key={activeTab} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} transition={{ duration: 0.3 }}>
@@ -292,6 +329,41 @@ export default function DashboardPage() {
               {activeTab === 'logs' && (
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
                   <LogsView agencyId={currentAgency.id} />
+                </motion.div>
+              )}
+              {activeTab === 'holds' && (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                  <div className="mb-4 p-4 bg-purple-500/10 border border-purple-500/20 rounded-2xl">
+                    <p className="text-sm text-purple-300">🔒 <strong>Exclusive Feature</strong> — These slots are held by HydraBot. Anyone wanting tickets must contact you directly.</p>
+                  </div>
+                  {heldSlots.length === 0 ? (
+                    <div className="bg-[#0F0F0F] border border-[#262626] rounded-2xl flex flex-col items-center justify-center py-16 text-center">
+                      <Lock className="w-8 h-8 text-[#555] mb-3" />
+                      <p className="text-[#888] text-sm">No active holds right now</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+                      {heldSlots.map((h: any) => (
+                        <div key={h.id} className="bg-[#0F0F0F] border border-[#262626] rounded-2xl p-4">
+                          <div className="h-1 w-full bg-purple-500 rounded-full mb-3" />
+                          <div className="flex justify-between items-start mb-2">
+                            <div>
+                              <p className="text-white font-semibold text-sm">{h.date} · {h.slot_time}</p>
+                              <p className="text-[#666] text-xs mt-0.5">{h.ticket_name}</p>
+                            </div>
+                            <span className="text-xs px-2 py-1 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-full">
+                              🔒 Held
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between text-xs text-[#666] mt-3 pt-3 border-t border-[#1a1a1a]">
+                            <span>👥 {h.visitors} visitor{h.visitors !== 1 ? 's' : ''}</span>
+                            <span className="text-[#00E37C] font-semibold">€{h.total_price}</span>
+                            <span>Hold #{h.id}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </motion.div>
               )}
             </motion.div>
