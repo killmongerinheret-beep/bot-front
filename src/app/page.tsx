@@ -333,35 +333,60 @@ export default function DashboardPage() {
               )}
               {activeTab === 'holds' && (
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-                  <div className="mb-4 p-4 bg-purple-500/10 border border-purple-500/20 rounded-2xl">
-                    <p className="text-sm text-purple-300">🔒 <strong>Exclusive Feature</strong> — These slots are held by HydraBot. Anyone wanting tickets must contact you directly.</p>
+                  {/* Summary bar */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
+                    {[
+                      { label: 'Total Slots', val: heldSlots.length },
+                      { label: 'April Slots', val: heldSlots.filter((h:any) => h.date?.includes('/04/')).length },
+                      { label: 'May Slots', val: heldSlots.filter((h:any) => h.date?.includes('/05/')).length },
+                      { label: 'Total Value', val: `€${heldSlots.reduce((s:number,h:any) => s + parseFloat(h.total_price||0), 0).toLocaleString()}` },
+                    ].map(({label, val}) => (
+                      <div key={label} className="bg-[#0F0F0F] border border-[#262626] rounded-2xl p-4 text-center">
+                        <div className="text-xl font-bold text-white">{val}</div>
+                        <div className="text-xs text-[#666] mt-1">{label}</div>
+                      </div>
+                    ))}
                   </div>
+
+                  <div className="mb-4 p-3 bg-purple-500/10 border border-purple-500/20 rounded-xl">
+                    <p className="text-xs text-purple-300">🔒 Exclusive — slots held by HydraBot. Anyone wanting tickets must contact you directly.</p>
+                  </div>
+
                   {heldSlots.length === 0 ? (
                     <div className="bg-[#0F0F0F] border border-[#262626] rounded-2xl flex flex-col items-center justify-center py-16 text-center">
                       <Lock className="w-8 h-8 text-[#555] mb-3" />
                       <p className="text-[#888] text-sm">No active holds right now</p>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-                      {heldSlots.map((h: any) => (
-                        <div key={h.id} className="bg-[#0F0F0F] border border-[#262626] rounded-2xl p-4">
-                          <div className="h-1 w-full bg-purple-500 rounded-full mb-3" />
-                          <div className="flex justify-between items-start mb-2">
-                            <div>
-                              <p className="text-white font-semibold text-sm">{h.date} · {h.slot_time}</p>
-                              <p className="text-[#666] text-xs mt-0.5">{h.ticket_name}</p>
-                            </div>
-                            <span className="text-xs px-2 py-1 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-full">
-                              🔒 Held
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-between text-xs text-[#666] mt-3 pt-3 border-t border-[#1a1a1a]">
-                            <span>👥 {h.visitors} visitor{h.visitors !== 1 ? 's' : ''}</span>
-                            <span className="text-[#00E37C] font-semibold">€{h.total_price}</span>
-                            <span>Hold #{h.id}</span>
-                          </div>
-                        </div>
-                      ))}
+                    <div className="overflow-x-auto rounded-2xl border border-[#262626]">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-[#262626] bg-[#0a0a0a]">
+                            <th className="text-left px-4 py-3 text-xs text-[#666] font-medium">Date</th>
+                            <th className="text-left px-4 py-3 text-xs text-[#666] font-medium">Time</th>
+                            <th className="text-left px-4 py-3 text-xs text-[#666] font-medium">Visitors</th>
+                            <th className="text-left px-4 py-3 text-xs text-[#666] font-medium">Price</th>
+                            <th className="text-left px-4 py-3 text-xs text-[#666] font-medium">Ticket</th>
+                            <th className="text-left px-4 py-3 text-xs text-[#666] font-medium">Hold #</th>
+                            <th className="text-left px-4 py-3 text-xs text-[#666] font-medium">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {heldSlots.map((h: any, i: number) => (
+                            <tr key={h.id} className={`border-b border-[#1a1a1a] ${i % 2 === 0 ? 'bg-[#0F0F0F]' : 'bg-[#0a0a0a]'} hover:bg-[#141414] transition-colors`}>
+                              <td className="px-4 py-3 text-white font-mono text-xs">{h.date}</td>
+                              <td className="px-4 py-3 text-[#00E37C] font-mono text-xs font-semibold">{h.slot_time}</td>
+                              <td className="px-4 py-3 text-white text-xs">👥 {h.visitors}</td>
+                              <td className="px-4 py-3 text-[#00E37C] text-xs font-semibold">€{h.total_price}</td>
+                              <td className="px-4 py-3 text-[#888] text-xs truncate max-w-[160px]">{h.ticket_name?.replace("Musei Vaticani - ", "")}</td>
+                              <td className="px-4 py-3 text-[#555] text-xs">#{h.id}</td>
+                              <td className="px-4 py-3">
+                                <span className="text-[10px] px-2 py-0.5 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-full">🔒 held</span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                   )}
                 </motion.div>
